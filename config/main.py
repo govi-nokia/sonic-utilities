@@ -72,6 +72,7 @@ from . import switchport
 from . import dns
 from . import bgp_cli
 from . import stp
+from . import lldp
 from . import evpn_mh
 from . import llr
 
@@ -1808,6 +1809,9 @@ config.add_command(stp.spanning_tree)
 
 # add llr commands
 config.add_command(llr.llr)
+
+# add lldp commands
+config.add_command(lldp.lldp)
 
 # add mclag commands
 config.add_command(mclag.mclag)
