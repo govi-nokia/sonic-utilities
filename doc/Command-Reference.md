@@ -9559,6 +9559,112 @@ Optionally, you can specify an interface name in order to display only that part
       PortDescr:    T0-2:hundredGigE1/29
   -------------------------------------------------------------------------------
   ```
+
+**show lldp statistics**
+
+This command displays LLDP frame and TLV counters from `COUNTERS_DB` (`LLDP_STATISTICS`), populated by `lldp_syncd` from `lldpcli show statistics`. Column names and order match `lldpcli` (`Transmitted`, `Received`, `Discarded`, `Unrecognized`, `Ageout`, `Inserted`). Per-interface rows are listed first; the `GLOBAL` row is the sum of those interfaces. Optionally filter to one interface.
+
+- Usage:
+  ```
+  show lldp statistics [<interface_name>]
+  ```
+
+- Example1: All interfaces
+  ```
+  admin@sonic:~$ show lldp statistics
+  Interface    Transmitted    Received    Discarded    Unrecognized    Ageout    Inserted
+  -----------  -------------  ----------  -----------  --------------  --------  ----------
+  Ethernet0    100            200         6            7               8         9
+  eth0         10             20          1            2               3         4
+  GLOBAL       110            220         7            9               11        13
+  ```
+
+- Example2: One interface
+  ```
+  admin@sonic:~$ show lldp statistics Ethernet0
+  Interface    Transmitted    Received    Discarded    Unrecognized    Ageout    Inserted
+  -----------  -------------  ----------  -----------  --------------  --------  ----------
+  Ethernet0    100            200         6            7               8         9
+  ```
+
+Counters that `lldpd` does not expose (`last-clear`, `frame-error-in`, `frame-error-out`, `tlv-discard`) are omitted.
+
+**show lldp config**
+
+This command displays global LLDP settings from `CONFIG_DB` (`LLDP|GLOBAL`). `Management-interface` is the interface used to populate the Management Address TLV.
+
+- Usage:
+  ```
+  show lldp config
+  ```
+
+- Example:
+  ```
+  admin@sonic:~$ show lldp config
+  Parameter                 Value
+  ------------------------  ---------
+  Enabled                   true
+  Mode                      -
+  Hello-time (sec)          30
+  Multiplier                4
+  System-name               -
+  System-description        -
+  Management-interface      eth0
+  Mgmt-address-TLV          advertise
+  System-capabilities-TLV   advertise
+  ```
+
+**show lldp custom-tlv**
+
+This command displays globally advertised organizationally specific TLVs from `CONFIG_DB` (`LLDP_CUSTOM_TLV`).
+
+- Usage:
+  ```
+  show lldp custom-tlv
+  ```
+
+- Example:
+  ```
+  admin@sonic:~$ show lldp custom-tlv
+  Name            Type    OUI       Subtype    Value
+  --------------  ------  --------  ---------  ------------------------
+  vendor-serial   127     00:90:69  1          435530323133353130363530
+  ```
+
+### LLDP config commands
+
+**config lldp management-interface**
+
+Select the existing interface whose addresses populate the LLDP Management Address TLV (`lldpcli configure system ip management pattern`). The name must be a real interface (for example `eth0`); wildcards such as `?` and `*` are rejected.
+
+- Usage:
+  ```
+  config lldp management-interface <interface_name>
+  config lldp unconfigure management-interface
+  ```
+
+- Example:
+  ```
+  admin@sonic:~$ sudo config lldp management-interface eth0
+  admin@sonic:~$ sudo config lldp unconfigure management-interface
+  ```
+
+**config lldp custom-tlv**
+
+Advertise or remove a global organizationally specific TLV (`lldpcli configure lldp custom-tlv`). OUI is three hex bytes. Value is optional hex.
+
+- Usage:
+  ```
+  config lldp custom-tlv add <name> <oui> <subtype> [<hex-value>]
+  config lldp custom-tlv delete <name>
+  ```
+
+- Example:
+  ```
+  admin@sonic:~$ sudo config lldp custom-tlv add vendor-serial 00:90:69 1 435530323133353130363530
+  admin@sonic:~$ sudo config lldp custom-tlv delete vendor-serial
+  ```
+
 Go Back To [Beginning of the document](#) or [Beginning of this section](#lldp)
 
 

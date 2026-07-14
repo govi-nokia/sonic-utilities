@@ -72,6 +72,7 @@ from . import dns
 from . import bgp_cli
 from . import stp
 from . import llr
+from . import lldp
 from . import srv6
 from . import switch
 from . import icmp
@@ -342,6 +343,7 @@ cli.add_command(warm_restart.warm_restart)
 cli.add_command(dns.dns)
 cli.add_command(stp.spanning_tree)
 cli.add_command(llr.llr)
+cli.add_command(lldp.lldp)
 cli.add_command(srv6.srv6)
 cli.add_command(switch.switch)
 cli.add_command(icmp.icmp)
@@ -1666,40 +1668,6 @@ def fib(ipaddress, verbose):
     run_command(cmd, display_cmd=verbose)
 
 #
-# 'lldp' group ("show lldp ...")
-#
-
-@cli.group(cls=clicommon.AliasedGroup)
-def lldp():
-    """Show LLDP information"""
-    pass
-
-# Default 'lldp' command (called if no subcommands or their aliases were passed)
-@lldp.command()
-@click.argument('interfacename', required=False)
-@click.option('--verbose', is_flag=True, help="Enable verbose output")
-def neighbors(interfacename, verbose):
-    """Show LLDP neighbors"""
-    cmd = ['sudo', 'lldpshow', '-d']
-
-    if interfacename is not None:
-        if clicommon.get_interface_naming_mode() == "alias":
-            interfacename = iface_alias_converter.alias_to_name(interfacename)
-
-        cmd += ['-p', str(interfacename)]
-
-    run_command(cmd, display_cmd=verbose)
-
-# 'table' subcommand ("show lldp table")
-@lldp.command()
-@click.option('--verbose', is_flag=True, help="Enable verbose output")
-def table(verbose):
-    """Show LLDP neighbors in tabular format"""
-    cmd = ['sudo', 'lldpshow']
-    run_command(cmd, display_cmd=verbose)
-
-
-#
 # 'logging' command ("show logging")
 #
 
@@ -2168,6 +2136,16 @@ def spanning_tree(verbose):
     """Show spanning_tree running configuration"""
     stp_list = ["STP", "STP_PORT", "STP_VLAN", "STP_VLAN_PORT"]
     for key in stp_list:
+        cmd = ['sudo', 'sonic-cfggen', '-d', '--var-json', key]
+        run_command(cmd, display_cmd=verbose)
+
+
+# 'lldp' subcommand ("show runningconfiguration lldp")
+@runningconfiguration.command('lldp')
+@click.option('--verbose', is_flag=True, help="Enable verbose output")
+def lldp_running_config(verbose):
+    """Show LLDP running configuration"""
+    for key in ["LLDP", "LLDP_PORT"]:
         cmd = ['sudo', 'sonic-cfggen', '-d', '--var-json', key]
         run_command(cmd, display_cmd=verbose)
 
